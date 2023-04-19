@@ -1,0 +1,14 @@
+{
+  "name": "polinomios-escuela",
+  "version": "1.0.0",
+  "description": "Calculadora de polinomios que uso para mi escuela.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Joaquin Medina",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^10.0.1"
+  }
+}
