@@ -34,30 +34,31 @@ class Polinomio {
 program
 	.name('polinomios')
 	.description('Programa para realizar operaciones con polinomios, **FASE BETA**')
-	.version('0.0.8')
+	.version('0.0.9')
 
-program.command('calc')
-    .description('Calcula dos o mas polinomios')
-    .argument('<string>', 'sumar | restar')
+program
+	.usage("[operacion] <polinomio> <polinomio>")
+    .argument('<string>', 'sumar | restar ')
     .option('-a, --polinomio-a <string>', 'polinomio A')
-    .option('-b, --polinomio-b <string>', 'polinomio B')
+    .option('-b, --polinomio-b <string>', 'polinomio B', '0x')
     .action((op, options) => {
 	const pA = options.polinomioA
 	const pB = options.polinomioB
 	const operaciones = {
 	    sumar: () => "Estas sumando",
 	    restar: () => "Estas restando",
+	    ordenar: () => "Ordenando..",
 	    testear: () => {
 			const terminos = pA.split(/(?=[-+])/)
 			console.log('Terminos:', terminos)
 			let terminosArr = []
 			terminos.forEach((n) => {
 				// /^(-?\d*\.?\d+(?=[a-z])|-\d*\.?\d+)?([a-z])?(\^(\d+))?$/i
-		   		const matches = n.match(/^(-?\d*\.?\d+)?([a-z])?(\^(\d+))?$/i)
+		   		const matches = n.match(/^([-+]?\d*\.?\d+)?([a-z])?(\^(\d+))?$/i)
 		    	if (matches) {
 					const coef = parseFloat(matches[1] || 1)
 					const variable = matches[2] || ""
-					const expo = parseInt(matches[4] || 1)
+					const expo = parseFloat(matches[4] || 1)
 
 					const termino = new Termino(coef, variable, expo)
 
@@ -70,32 +71,86 @@ program.command('calc')
 					// console.log(terminosArr)
 					// console.log("-------------")
 
-				} else if (n[0] == '+'){
-					terminosArr.push(new Termino(parseInt(n.slice(1)), '', 1))
-				} else if (n[0] == '-' && !n.match(/\dx/i)){
-					const matches = n.match(/^(-?[a-z])(\^(\d+))?$/i)
-					const coef = parseFloat(matches[2] || -1)
-					const variable = matches[2] || ""
-					const expo = parseInt(matches[4] || 1)
+				} 
+				// Corregir numeros positivos como +3
+				else if (n.match(/\+\d/i)) {
+					// Terminos independientes
+					if (!n.match(/[a-z]/i)) {
+						// console.log("--------------- TERMINO INDEPENDIENTE: ", n)
+						terminosArr.push(new Termino(parseFloat(n.slice(1)), '', 1))
+					} else {
+						terminosArr.push(new Termino(parseFloat(n.slice(1)), n.split(/\d+/i)[1], 1))
+						// console.log("--------------- ELSE IF NUM +: ", n.split(/\d+/i))
+					}
+					// const matches = n.match(/([a-z])?(\^(\d+))?$/i)
+				}
+				// x sola
+				else if (n.match(/^[-+]/i) && !n.match(/\d[a-z]/i)) {
+					// -x
+					if (n.match(/^\-/i)) {
+						const matches = n.match(/^(-?[a-z])(\^(\d+))?$/i)
+						// console.log("NEGATIVA -----------------", matches)
+						// const coef = parseFloat(matches[2] || -1)
+						const coef = -1
+						const variable = n.match(/[a-z]/i)[0] || ''
+						const expo = parseFloat(matches[3] || 1)
 
-					const termino = new Termino(coef, variable, expo)
+						const termino = new Termino(coef, variable, expo)
 
-					// Debug
-					// console.log("1: ------------")
-					// console.log(termino)
-					// console.log("------------")
-					terminosArr.push(termino)
+						terminosArr.push(termino)
+					}
+					// +x
+					else if (n.match(/^\+/i)) {
+						const matches = n.match(/^(\+?[a-z])(\^(\d+))?$/i)
+						// console.log("POSITIVA --------------------", matches)
+						// const coef = parseFloat(matches[2] || 1)
+						const coef = 1
+						const variable = n.match(/[a-z]/i)[0] || ''
+						const expo = parseFloat(matches[3] || 1)
+
+						const termino = new Termino(coef, variable, expo)
+
+						terminosArr.push(termino)
+					}
+					// x^
+					else if (n.match(/\^\d/i)) {
+						const matches = n.match(/^([-+]?[a-z])(\^(\d+))?$/i)
+						const coef = parseFloat(matches[2] || -1)
+						const variable = n.match(/[a-z]/i)[0] || ''
+						const expo = parseFloat(matches[4] || 1)
+
+						const termino = new Termino(coef, variable, expo)
+
+						terminosArr.push(termino)
+					}
+					// const matches = n.match(/^([-+]?[a-z])(\^(\d+))?$/i)
+					// console.log("-------------- ELSE IF x SOLA: ", matches)
+					// const coef = parseFloat(matches[2] || -1)
+					// const variable = n.split(/\-/i)[1]
+					// const expo = parseFloat(matches[4] || 1)
+
+					// const termino = new Termino(coef, variable, expo)
+
+					// terminosArr.push(termino)
 				}
 		    })
 		    const polinomio = new Polinomio(terminosArr)
 			console.log(polinomio)
-			// console.log("Normalizado:")
-			// console.log(polinomio.normalizar())
+			// console.log("Normalizado: ", polinomio.normalizar())
+
+			console.log("----------------------------------------------------")
 	    }
 	}
 	if (operaciones[op.toLowerCase()]) {operaciones[op.toLowerCase()]()}
-		else {console.log("No se puede realizar la operacion solicitada.")}
+	else {console.log("No se puede realizar la operacion solicitada.")}
     })
+
+program.addHelpText('after', `
+
+***IMPORTANTE***
+El programa esta en fase beta, por lo que no
+puede realizar operaciones aun.
+`)
 
 program.parse()
 
