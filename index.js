@@ -34,7 +34,7 @@ class Polinomio {
 program
 	.name('polinomios')
 	.description('Programa para realizar operaciones con polinomios, **FASE BETA**')
-	.version('0.0.9')
+	.version('0.0.8c')
 
 program
 	.usage("[operacion] <polinomio> <polinomio>")
@@ -153,5 +153,3 @@ puede realizar operaciones aun.
 `)
 
 program.parse()
-
-// Creo que para que se puedan sumar mas polinomios, necesito que solo sea un parametro, y de ahi separarlo usando expresiones regulares
